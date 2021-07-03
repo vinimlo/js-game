@@ -58,13 +58,13 @@
       );
 
       var game = {
-        fps: 10,
+        fps: 60,
         run: function() {
           logic();
           draw();
         },
         start: function() {
-          var interval = setInterval(game.run, game.fps);
+          var interval = setInterval(game.run, 1000/game.fps);
         },
         stop: function() {
           alert("GAME OVER");
@@ -128,10 +128,12 @@
         }
       }
 
+      function pong() {
+
+      }
+
       //jogo
-      game.run();
       game.start();
-      //game.stop();
       //end jogo
 
     </script>
