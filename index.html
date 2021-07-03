@@ -2,26 +2,44 @@
 <html lang="pt-br" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>pong pong</title>
+    <title>|Pong Game|</title>
   </head>
   <body>
     <canvas id="canvas"></canvas>
 
     <script type="text/javascript">
 
+      //canvas
       var canvas = document.getElementById("canvas");
+      var graphic = canvas.getContext("2d");
       canvas.width = 800;
       canvas.height = 600;
 
-      var ctx = canvas.getContext("2d");
+      var g = graphic;
+      //end canvas
 
-      let x = canvas.width/2;
-      let y = canvas.height/2;
-      let dx = 2;
-      let dy = -2;
-      let ballRadius = 12;
+      //global
+      var keysDown = {};
+      //end global
 
-      let keysDown = {};
+      function logic(){
+        ball.logic();
+        player.logic();
+      }
+
+      function draw(){
+        g.beginPath();
+
+        //background
+        g.fillStyle = "#000";
+        g.fillRect(0, 0, canvas.width, canvas.height);
+        //end background
+
+        ball.draw();
+        player.draw();
+
+        g.closePath();
+      }
 
       addEventListener(
         "keydown",
@@ -39,87 +57,82 @@
         false
       );
 
-      let dash = {
-        width: 150,
-        height: 20,
+      var game = {
+        fps: 10,
+        run: function() {
+          logic();
+          draw();
+        },
+        start: function() {
+          var interval = setInterval(game.run, game.fps);
+        },
+        stop: function() {
+          alert("GAME OVER");
+          document.location.reload();
+          clearInterval(interval);
+        }
+      }
+
+      var ball = {
+        radius: 12,
         x: canvas.width/2,
-        y: canvas.height - 20,
-        speed: 7
-      }
+        y: canvas.height/2,
+        dx: 2,
+        dy: -2,
+        logic: function() {
+          ball.x += ball.dx;
+          ball.y += ball.dy;
 
-      let enemy = {
-        width: 150,
-        height: 20,
-        x: canvas.width/2,
-        y: canvas.height - 20,
-        speed: 7
-      }
-
-      function drawBall() {
-        ctx.beginPath();
-        ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-        ctx.fill();
-        ctx.closePath();
-      }
-
-      function drawDash() {
-        ctx.fillStyle = "#0095DD";
-        ctx.fillRect(dash.x, dash.y, dash.width, dash.height);
-      }
-
-      function drawEnemy() {
-        ctx.fillStyle = "#0095DD";
-        ctx.fillRect(dash.x, dash.y, enemy.width, enemy.height);
-      }
-
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        //fundo
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        //end fundo
-
-        drawEnemy();
-        drawDash();
-        drawBall();
-        keysDash();
-
-        x += dx;
-        y += dy;
-
-        if(y + dy < ballRadius) dy *= -1;
-        else if(y + dy > canvas.height - ballRadius - dash.height) {
-          if(x > dash.x && x < dash.x + dash.width) {
-            dy *= -1;
-          } else {
-            alert("GAME OVER");
-            document.location.reload();
-            clearInterval(interval)
+          if(ball.y + ball.dy < ball.radius) ball.dy *= -1;
+          else if(ball.y + ball.dy >= canvas.height - ball.radius - player.height) {
+            if(ball.x > player.x && ball.x < player.x + player.width) {
+              ball.dy *= -1;
+            } else {
+              game.stop();
+            }
           }
+          if(ball.y + ball.dy >= canvas.height - ball.radius) ball.dy *= -1;
+
+          if(ball.x + ball.dx <= 0 || ball.x + ball.dx >= canvas.width - ball.radius) ball.dx *= -1;
+        },
+        draw: function() {
+          g.fillStyle = "#0095DD";
+          g.arc( ball.x, ball.y, ball.radius, 0, Math.PI*2);
+          g.fill();
         }
-        if(y + dy > canvas.height - ballRadius) dy *= -1;
-
-        if(x + dx < 0 || x + dx > canvas.width - ballRadius) dx *= -1;
       }
 
-      let interval = setInterval(draw, 10);
-
-      function keysDash() {
-        if(37 in keysDown) moveDash(-1);
-        if(39 in keysDown) moveDash(1);
-      }
-
-      function moveDash(deltaX) {
-        if (dash.x + deltaX <= 0) {
-          dash.x = 0;
-        } else if (dash.x + dash.width + deltaX >= canvas.width){
-          dash.x = canvas.width - dash.width;
-        } else {
-          dash.x += deltaX * dash.speed;
+      var player = {
+        width: 150,
+        height: 20,
+        x: canvas.width/2 - 75,
+        y: canvas.height - 20,
+        speed: 7,
+        dx: 0,
+        movement: function(deltaX) {
+          if (player.x + deltaX <= 0)  {
+            player.x = 0;
+          }else if (player.x + player.width + deltaX >= canvas.width) {
+            player.x = canvas.width - player.width;
+          }else {
+            player.x += deltaX * player.speed;
+          }
+        },
+        logic: function() {
+          if(37 in keysDown) player.movement(-1);
+          if(39 in keysDown) player.movement(1);
+        },
+        draw: function() {
+          g.fillStyle = "#0095DD";
+          g.fillRect(player.x, player.y, player.width, player.height);
         }
-        console.log(dash.x);
       }
+
+      //jogo
+      game.run();
+      game.start();
+      //game.stop();
+      //end jogo
 
     </script>
   </body>
