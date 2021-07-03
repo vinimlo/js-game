@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>pong pong</title>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript">
+
+      var canvas = document.getElementById("canvas");
+      canvas.width = 800;
+      canvas.height = 600;
+
+      var ctx = canvas.getContext("2d");
+
+      let x = canvas.width/2;
+      let y = canvas.height/2;
+      let dx = 2;
+      let dy = -2;
+      let ballRadius = 12;
+
+      let keysDown = {};
+
+      addEventListener(
+        "keydown",
+        function(e) {
+          keysDown[e.keyCode] = true;
+        },
+        false
+      );
+
+      addEventListener(
+        "keyup",
+        function(e) {
+          delete keysDown[e.keyCode];
+        },
+        false
+      );
+
+      let dash = {
+        width: 150,
+        height: 20,
+        x: canvas.width/2,
+        y: canvas.height - 20,
+        speed: 7
+      }
+
+      let enemy = {
+        width: 150,
+        height: 20,
+        x: canvas.width/2,
+        y: canvas.height - 20,
+        speed: 7
+      }
+
+      function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+        ctx.fill();
+        ctx.closePath();
+      }
+
+      function drawDash() {
+        ctx.fillStyle = "#0095DD";
+        ctx.fillRect(dash.x, dash.y, dash.width, dash.height);
+      }
+
+      function drawEnemy() {
+        ctx.fillStyle = "#0095DD";
+        ctx.fillRect(dash.x, dash.y, enemy.width, enemy.height);
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        //fundo
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        //end fundo
+
+        drawEnemy();
+        drawDash();
+        drawBall();
+        keysDash();
+
+        x += dx;
+        y += dy;
+
+        if(y + dy < ballRadius) dy *= -1;
+        else if(y + dy > canvas.height - ballRadius - dash.height) {
+          if(x > dash.x && x < dash.x + dash.width) {
+            dy *= -1;
+          } else {
+            alert("GAME OVER");
+            document.location.reload();
+            clearInterval(interval)
+          }
+        }
+        if(y + dy > canvas.height - ballRadius) dy *= -1;
+
+        if(x + dx < 0 || x + dx > canvas.width - ballRadius) dx *= -1;
+      }
+
+      let interval = setInterval(draw, 10);
+
+      function keysDash() {
+        if(37 in keysDown) moveDash(-1);
+        if(39 in keysDown) moveDash(1);
+      }
+
+      function moveDash(deltaX) {
+        if (dash.x + deltaX <= 0) {
+          dash.x = 0;
+        } else if (dash.x + dash.width + deltaX >= canvas.width){
+          dash.x = canvas.width - dash.width;
+        } else {
+          dash.x += deltaX * dash.speed;
+        }
+        console.log(dash.x);
+      }
+
+    </script>
+  </body>
+</html>
